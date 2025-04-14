@@ -11,7 +11,7 @@ const InputSearch = ({ input, setInput, setTerm }) => {
 	};
 	return (
 		<form
-			className='p-4 border border-slate-300 bg-slate-100 flex items-center gap-x-2 rounded-l'
+			className='p-4 border border-slate-300 bg-slate-100 flex items-center gap-x-2 rounded'
 			onSubmit={handleSubmit}>
 			<input
 				className='w-full focus-hi'
