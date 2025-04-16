@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { images } from './data/data';
 
+import _ from 'lodash';
+
 function App() {
 	const [flippedCards, setFlippedCards] = useState([]);
 	const [matchedCards, setMatchedCards] = useState([]);
-
 	const [isHit, setIsHit] = useState(0);
+	const [shuffledImages] = useState(() => _.shuffle([...images]));
 
 	const handleClick = (index) => {
 		if (
@@ -22,7 +24,7 @@ function App() {
 
 		if (newFlippedCards.length === 2) {
 			const [firstIndex, secondIndex] = newFlippedCards;
-			if (images[firstIndex] === images[secondIndex]) {
+			if (shuffledImages[firstIndex] === shuffledImages[secondIndex]) {
 				setMatchedCards((prev) => {
 					const newMatched = [...prev, firstIndex, secondIndex];
 					console.log('Current Matched Cards: ', newMatched);
@@ -47,7 +49,7 @@ function App() {
 				Memory Game
 			</h1>
 			<div className='grid grid-cols-3 gap-5'>
-				{images.map((image, index) => {
+				{shuffledImages.map((image, index) => {
 					const isFlipped = flippedCards.includes(index);
 					const isMatched = matchedCards.includes(index);
 					return (
