@@ -1,6 +1,7 @@
 import { BiCalendarCheck, BiUpvote } from 'react-icons/bi';
 import { useEffect, useState } from 'react';
 import { getTopNews } from './api';
+import { format } from 'date-fns';
 
 function App() {
 	const [articles, setArticles] = useState([]);
@@ -25,7 +26,7 @@ function App() {
 								<p>by {article.by}</p>
 								<span className='flex flex-row gap-2'>
 									<span className='flex flex-row gap-1 items-center'>
-										<p>{article.time}</p>
+										<p>{format(new Date(article.time * 1000), 'MMM dd, yy')}</p>
 										<BiCalendarCheck />
 									</span>
 									<span className='flex flex-row gap-1 items-center'>
