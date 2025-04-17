@@ -37,7 +37,8 @@ function App() {
 							</div>
 							<h2 className='font-bold text-xl'>{article.title}</h2>
 							<a
-								href='#'
+								href={article.url}
+								target='_blank'
 								className='w-fit font-bold bg-teal-400 text-black rounded-sm py-2 px-3 hover:bg-teal-200'>
 								Read More
 							</a>
