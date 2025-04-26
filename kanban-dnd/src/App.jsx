@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DroppableArea from './components/DroppableArea';
 import DraggableItem from './components/DraggableItem';
+import DeleteableArea from './components/DeleteableArea';
 
 function App() {
 	const [inputValue, setInputValue] = useState('');
@@ -27,13 +28,19 @@ function App() {
 	const handleDragEnd = (e) => {
 		const { active, over } = e;
 
-		if (!over) return; // Jika tidak di-drop di area yang valid, abaikan
+		if (!over) return;
 
-		setTodoList((prevItems) =>
-			prevItems.map((item) =>
-				item.id === active.id ? { ...item, status: over.id } : item,
-			),
-		);
+		if (over.id === 'delete') {
+			setTodoList((prevItems) =>
+				prevItems.filter((item) => item.id !== active.id),
+			);
+		} else {
+			setTodoList((prevItems) =>
+				prevItems.map((item) =>
+					item.id === active.id ? { ...item, status: over.id } : item,
+				),
+			);
+		}
 	};
 
 	return (
@@ -131,6 +138,20 @@ function App() {
 									</li>
 								)}
 							</DroppableArea>
+						</ul>
+					</div>
+
+					{/* delete */}
+					<div className='flex flex-col p-2 gap-y-2 bg-red-100 rounded'>
+						{/* heading */}
+						<h2 className='text-red-800 font-bold'>Delete</h2>
+						{/* list */}
+						<ul>
+							<DeleteableArea id='delete'>
+								<li className='cursor-pointer rounded-sm px-4 py-3 text-red-400 border border-red-400 border-dashed text-sm '>
+									Drag here for delete task
+								</li>
+							</DeleteableArea>
 						</ul>
 					</div>
 				</div>
