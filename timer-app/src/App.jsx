@@ -1,51 +1,112 @@
-import { useRef } from 'react';
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 function App() {
-	const [timer, setTimer] = useState(300);
+	const minutesToMs = (minutes) => minutes * 60 * 1000;
+
+	const [timer, setTimer] = useState(minutesToMs(5));
 	const [isActive, setIsActive] = useState(false);
 	const [isPaused, setIsPaused] = useState(true);
+	const [targetTime, setTargetTime] = useState(null);
 	const timerRef = useRef(null);
 
-	const formatTime = (seconds) => {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
+	const formatTime = (milliseconds) => {
+		const totalSeconds = Math.floor(milliseconds / 1000);
+		const mins = Math.floor(totalSeconds / 60);
+		const secs = totalSeconds % 60;
 		return `${mins.toString().padStart(2, '0')}:${secs
 			.toString()
 			.padStart(2, '0')}`;
 	};
 
-	const resetTime = () => {
-		clearInterval(timerRef.current);
-		setIsActive(false);
-		setIsPaused(true);
-		setTimer(300);
+	useEffect(() => {
+		// Cleanup interval on unmount
+		return () => {
+			if (timerRef.current) {
+				clearInterval(timerRef.current);
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (timer <= 0 && isActive) {
+			clearInterval(timerRef.current);
+			setIsActive(false);
+			setIsPaused(true);
+		}
+	}, [timer, isActive]);
+
+	const startTimer = () => {
+		setIsActive(true);
+		setIsPaused(false);
+		const newTargetTime = Date.now() + timer;
+		setTargetTime(newTargetTime);
+
+		if (timerRef.current) clearInterval(timerRef.current);
+
+		timerRef.current = setInterval(() => {
+			setTimer((prev) => {
+				const remaining = newTargetTime - Date.now();
+				if (remaining <= 0) {
+					clearInterval(timerRef.current);
+					setIsActive(false);
+					setIsPaused(true);
+					return 0;
+				}
+				return remaining;
+			});
+		}, 1000);
 	};
 
-	const toggleTimer = () => {
-		if (isActive && !isPaused) {
-			clearInterval(timerRef.current);
-			setIsPaused(true);
-		} else {
-			//start atau lanjutkan timer
-			setIsActive(true);
-			setIsPaused(false);
-			timerRef.current = setInterval(() => {
-				setTimer((prevTime) => {
-					if (prevTime <= 0) {
-						clearInterval(timerRef.current);
-						return 0;
-					}
-					return prevTime - 1; // kurangin 1 detik
-				});
-			}, 1000);
-		}
+	const pauseTimer = () => {
+		clearInterval(timerRef.current);
+		setIsPaused(true);
+	};
+
+	const resumeTimer = () => {
+		if (timer <= 0) return;
+
+		const newTargetTime = Date.now() + timer;
+		setTargetTime(newTargetTime);
+		setIsPaused(false);
+
+		if (timerRef.current) clearInterval(timerRef.current);
+
+		timerRef.current = setInterval(() => {
+			setTimer((prev) => {
+				const remaining = newTargetTime - Date.now();
+				if (remaining <= 0) {
+					clearInterval(timerRef.current);
+					setIsActive(false);
+					setIsPaused(true);
+					return 0;
+				}
+				return remaining;
+			});
+		}, 1000);
+	};
+
+	const resetTime = () => {
+		clearInterval(timerRef.current);
+		setTimer(minutesToMs(5));
+		setTargetTime(null);
+		setIsActive(false);
+		setIsPaused(true);
 	};
 
 	const stopTimer = () => {
 		clearInterval(timerRef.current);
 		setIsActive(false);
 		setIsPaused(true);
+	};
+
+	const toggleTimer = () => {
+		if (!isActive) {
+			startTimer();
+		} else if (isPaused) {
+			resumeTimer();
+		} else {
+			pauseTimer();
+		}
 	};
 
 	return (
